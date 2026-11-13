@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HapusLatar AI Studio — Hapus Background Foto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('hl_theme')==='dark'||(!localStorage.getItem('hl_theme')&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>try{tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],display:['Bricolage Grotesque','Inter','sans-serif']}}}}}catch(e){}</script>
+<style type="text/tailwindcss">
+@layer components{
+ .card{@apply bg-white/85 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xl shadow-indigo-900/5}
+ .inp{@apply w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 transition}
+ .lbl{@apply block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1.5}
+ .btn{@apply w-full py-3 px-5 rounded-xl font-bold text-sm text-white transition active:scale-[.98] shadow-lg}
+ .btn-main{@apply btn bg-gradient-to-r from-violet-600 to-rose-500 hover:brightness-110 shadow-violet-500/30}
+ .btn-ok{@apply btn bg-gradient-to-r from-emerald-600 to-teal-500 hover:brightness-110 shadow-emerald-500/25}
+ .btn-soft{@apply px-3 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-violet-500 transition}
+ .h4{@apply text-xs font-bold text-slate-500 dark:text-slate-400 mb-2.5}
+ .seg{@apply grid gap-1 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800}
+ .seg button{@apply py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 transition}
+ .seg button.on{@apply bg-white dark:bg-slate-700 text-violet-600 dark:text-violet-300 shadow-sm font-bold}
+ .tool.on{@apply border-violet-600 bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300}
+ .bgp.on{@apply ring-2 ring-violet-600 ring-offset-2 ring-offset-white dark:ring-offset-slate-900}
+}
+[hidden],.hidden{display:none!important}
+html,body{font-family:Inter,sans-serif;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,.font-display{font-family:'Bricolage Grotesque',sans-serif}
+.checker{background-color:#fff;background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+.dark .checker{background-color:#0f172a;background-image:linear-gradient(45deg,#1e293b 25%,transparent 25%),linear-gradient(-45deg,#1e293b 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1e293b 75%),linear-gradient(-45deg,transparent 75%,#1e293b 75%)}
+body{background:radial-gradient(60rem 30rem at 10% -10%,rgba(139,92,246,.18),transparent),radial-gradient(50rem 30rem at 100% 10%,rgba(244,63,94,.12),transparent),#f8f7ff}
+.dark body{background:radial-gradient(60rem 30rem at 10% -10%,rgba(124,58,237,.28),transparent),radial-gradient(50rem 30rem at 100% 10%,rgba(225,29,72,.16),transparent),#0b0a1a}
+input[type=range]{accent-color:#7c3aed}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(rgba(109,59,255,.18) 1px,transparent 1px);background-size:22px 22px;-webkit-mask-image:linear-gradient(#000,transparent 65%);mask-image:linear-gradient(#000,transparent 65%)}
+.vf{position:relative}
+.vf::before,.vf::after{content:"";position:absolute;width:26px;height:26px;border:3px solid #6d3bff;z-index:5;pointer-events:none}
+.vf::before{top:10px;left:10px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.vf::after{bottom:10px;right:10px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.card{box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 28px 60px -28px rgba(76,29,149,.4)!important}
+.dark .card{box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 28px 60px -28px rgba(0,0,0,.8)!important}
+.btn-main,.btn-ok{border-radius:9999px}
+.btn-main:hover,.btn-ok:hover{transform:translateY(-1px)}
+.hero-title{letter-spacing:-.035em}
+.chip{position:absolute;z-index:6;padding:6px 12px;border-radius:9999px;font-size:11px;font-weight:700;box-shadow:0 10px 24px -8px rgba(0,0,0,.4)}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.bob{animation:bob 4s ease-in-out infinite}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.up{animation:up .4s cubic-bezier(.16,1,.3,1) both}
+@keyframes sweep{0%,100%{left:12%}50%{left:88%}}
+@keyframes clip{0%,100%{clip-path:inset(0 88% 0 0)}50%{clip-path:inset(0 12% 0 0)}}
+.sweep{animation:sweep 4s ease-in-out infinite}.clip{animation:clip 4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.sweep,.clip,.up,.bob{animation:none}}
+</style>
+</head>
+<body class="text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<div id="toasts" class="fixed bottom-4 right-4 left-4 sm:left-auto z-[60] flex flex-col gap-2 sm:max-w-sm pointer-events-none"></div>
+
+<header class="sticky top-0 z-30 bg-white/75 dark:bg-slate-950/70 backdrop-blur-xl border-b border-slate-200/70 dark:border-slate-800">
+ <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+  <div class="flex items-center gap-2.5">
+   <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-rose-500 grid place-items-center text-white shadow-lg shadow-violet-500/30">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.8 15.9 9 18.75l-.8-2.85a4.5 4.5 0 0 0-3.1-3.1L2.25 12l2.85-.8a4.5 4.5 0 0 0 3.1-3.1L9 5.25l.8 2.85a4.5 4.5 0 0 0 3.1 3.1l2.85.8-2.85.8a4.5 4.5 0 0 0-3.1 3.1Z"/></svg>
+   </div>
+   <div><span class="font-display font-extrabold text-lg tracking-tight">HapusLatar</span> <span class="hidden sm:inline text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">AI Studio</span></div>
+  </div>
+  <div class="flex items-center gap-2">
+   <button id="newBtn" class="hidden btn-soft">+ <span class="hidden md:inline">Gambar baru</span></button>
+   <button id="themeBtn" aria-label="Ganti tema" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-base leading-none">🌓</button>
+   <button id="profileBtn" class="hidden items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-violet-500 transition" aria-label="Buka profil">
+    <span id="pillAvatar" class="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-violet-600 to-rose-500 text-white text-xs font-bold grid place-items-center shrink-0">U</span>
+    <span id="pillName" class="hidden sm:block text-xs font-bold max-w-[110px] truncate">Pengguna</span>
+   </button>
+  </div>
+ </div>
+</header>
+
+<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+
+<!-- AUTH -->
+<section id="authView" class="up">
+ <div class="max-w-5xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+  <div class="order-2 lg:order-1 text-center lg:text-left">
+   <h1 class="hero-title text-4xl sm:text-6xl font-extrabold leading-[1.02] mb-5">Foto bersih tanpa latar, dalam hitungan detik.</h1>
+   <p class="text-slate-600 dark:text-slate-400 max-w-md mx-auto lg:mx-0 mb-6">Hapus background dengan AI langsung di browser, lalu ganti dengan warna merah KTP, biru ijazah, atau foto latar sendiri. Gambar tidak diunggah ke server.</p>
+   <div class="card relative p-3 max-w-md mx-auto lg:mx-0"><span class="chip bob -top-3 -right-2 bg-[#ffd84d] text-slate-900">PNG transparan</span><span class="chip bob -bottom-3 -left-2 bg-[#db1514] text-white" style="animation-delay:-2s">Merah KTP</span>
+    <div class="vf relative h-60 sm:h-64 rounded-2xl overflow-hidden checker grid place-items-center">
+     <div class="absolute inset-0 grid place-items-center"><div class="w-28 h-28 rounded-full bg-gradient-to-tr from-violet-600 to-rose-500 grid place-items-center text-6xl shadow-2xl">🧑‍💼</div></div>
+     <div class="absolute inset-0 clip bg-gradient-to-br from-sky-300 via-indigo-200 to-fuchsia-300 dark:from-sky-900 dark:via-indigo-900 dark:to-fuchsia-900 grid place-items-center"><div class="w-28 h-28 rounded-full bg-gradient-to-tr from-violet-600 to-rose-500 grid place-items-center text-6xl shadow-2xl">🧑‍💼</div></div>
+     <div class="sweep absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_12px_#7c3aed]"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-2 pt-3 text-center text-[11px]">
+     <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/70"><b class="block text-violet-600 dark:text-violet-400 text-xs">Gratis</b>Tanpa watermark</div>
+     <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/70"><b class="block text-rose-600 dark:text-rose-400 text-xs">Pas foto</b>Merah &amp; biru</div>
+     <div class="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/70"><b class="block text-emerald-600 dark:text-emerald-400 text-xs">Privat</b>Proses di perangkat</div>
+    </div>
+   </div>
+  </div>
+
+  <div class="order-1 lg:order-2 w-full max-w-md mx-auto">
+   <div class="card p-6 sm:p-8">
+    <div class="seg grid-cols-2 mb-6"><button id="tabLogin" class="on" type="button">Masuk</button><button id="tabReg" type="button">Daftar</button></div>
+    <div id="authAlert" class="hidden mb-4 p-3 rounded-xl text-xs font-medium border" role="alert"></div>
+    <form id="loginForm" class="space-y-4" novalidate>
+     <div><h2 class="text-2xl font-extrabold">Selamat datang kembali</h2><p class="text-sm text-slate-500 dark:text-slate-400">Masuk untuk mulai mengedit foto.</p></div>
+     <div><label class="lbl" for="lEmail">Email</label><input class="inp" id="lEmail" type="email" autocomplete="email" placeholder="nama@email.com"></div>
+     <div><label class="lbl" for="lPass">Kata sandi</label><input class="inp" id="lPass" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi"></div>
+     <button class="btn-main" id="loginSubmit" type="button">Masuk ke studio</button>
+     <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+      <span class="text-slate-500">Belum punya akun? <button type="button" id="toReg" class="font-bold text-violet-600 dark:text-violet-400 hover:underline">Daftar gratis</button></span>
+      <button type="button" id="demoBtn" class="px-2.5 py-1.5 rounded-lg bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 font-semibold">Isi akun demo</button>
+     </div>
+    </form>
+    <form id="regForm" class="hidden space-y-3.5" novalidate>
+     <div><h2 class="text-2xl font-extrabold">Buat akun baru</h2><p class="text-sm text-slate-500 dark:text-slate-400">Cukup 10 detik.</p></div>
+     <div><label class="lbl" for="rName">Nama lengkap</label><input class="inp" id="rName" autocomplete="name" placeholder="Budi Santoso"></div>
+     <div><label class="lbl" for="rEmail">Email</label><input class="inp" id="rEmail" type="email" autocomplete="email" placeholder="budi@email.com"></div>
+     <div><label class="lbl" for="rPass">Kata sandi</label><input class="inp" id="rPass" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter"></div>
+     <div><label class="lbl" for="rPass2">Ulangi kata sandi</label><input class="inp" id="rPass2" type="password" autocomplete="new-password"></div>
+     <button class="btn-ok" id="regSubmit" type="button">Daftar dan masuk</button>
+     <p class="text-center text-xs text-slate-500">Sudah punya akun? <button type="button" id="toLogin" class="font-bold text-violet-600 dark:text-violet-400 hover:underline">Masuk</button></p>
+    </form>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- UPLOAD -->
+<section id="uploadView" class="hidden up">
+ <div class="max-w-3xl mx-auto text-center">
+  <p id="greet" class="inline-block px-3.5 py-1.5 rounded-full bg-violet-100 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-bold mb-4">Halo!</p>
+  <h1 class="hero-title text-4xl sm:text-6xl font-extrabold leading-[1.04] mb-4">Unggah foto, latar hilang sekali klik.</h1>
+  <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-xl mx-auto mb-8">Pilih foto produk, potret, atau logo. Hasilnya bisa diberi latar merah KTP atau biru ijazah.</p>
+  <div id="dropZone" class="vf card border-2 !border-dashed hover:!border-violet-500 p-6 sm:p-12 transition cursor-pointer group">
+   <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" class="hidden">
+   <div class="w-16 h-16 mx-auto mb-5 rounded-2xl bg-violet-50 dark:bg-violet-950 text-violet-600 grid place-items-center group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg></div>
+   <button type="button" id="pickBtn" class="btn-main !w-auto px-8 mb-3">Pilih gambar</button>
+   <p class="text-sm text-slate-500">atau seret file ke sini, atau tempel dengan <kbd class="px-2 py-0.5 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md">Ctrl + V</kbd></p>
+   <p class="text-xs text-slate-400 mt-1.5">JPG, PNG, WEBP</p>
+  </div>
+  <p class="mt-8 mb-3 text-xs font-bold text-slate-400">Belum punya gambar? Coba contoh:</p>
+  <div class="grid grid-cols-3 gap-3 max-w-md mx-auto">
+   <button data-sample="portrait" class="sample card !rounded-2xl p-2.5 hover:!border-violet-500 transition active:scale-95"><div class="h-14 rounded-xl bg-gradient-to-br from-sky-200 to-indigo-200 grid place-items-center text-2xl">🧑‍💼</div><span class="text-xs font-semibold mt-1.5 block">Potret</span></button>
+   <button data-sample="product" class="sample card !rounded-2xl p-2.5 hover:!border-violet-500 transition active:scale-95"><div class="h-14 rounded-xl bg-gradient-to-br from-amber-200 to-orange-200 grid place-items-center text-2xl">🧴</div><span class="text-xs font-semibold mt-1.5 block">Produk</span></button>
+   <button data-sample="logo" class="sample card !rounded-2xl p-2.5 hover:!border-violet-500 transition active:scale-95"><div class="h-14 rounded-xl bg-gradient-to-br from-emerald-200 to-teal-200 grid place-items-center text-2xl">🚀</div><span class="text-xs font-semibold mt-1.5 block">Stiker</span></button>
+  </div>
+  <ol class="mt-10 grid sm:grid-cols-3 gap-3 text-left">
+   <li class="card !rounded-2xl p-4"><b class="font-display text-2xl text-violet-600 dark:text-violet-300">1</b><p class="font-bold text-sm mt-1">Unggah foto</p><p class="text-xs text-slate-500 dark:text-slate-400">JPG, PNG, atau WEBP dari galeri.</p></li>
+   <li class="card !rounded-2xl p-4"><b class="font-display text-2xl text-violet-600 dark:text-violet-300">2</b><p class="font-bold text-sm mt-1">Hapus latar</p><p class="text-xs text-slate-500 dark:text-slate-400">Satu klik AI, lalu rapikan dengan kuas.</p></li>
+   <li class="card !rounded-2xl p-4"><b class="font-display text-2xl text-violet-600 dark:text-violet-300">3</b><p class="font-bold text-sm mt-1">Ganti latar dan unduh</p><p class="text-xs text-slate-500 dark:text-slate-400">Merah KTP, biru ijazah, atau warna bebas.</p></li>
+  </ol>
+ </div>
+</section>
+
+<!-- EDITOR -->
+<section id="editorView" class="hidden up">
+ <div class="flex flex-col lg:flex-row gap-5">
+  <div class="card flex-1 flex flex-col overflow-hidden min-w-0">
+   <div class="px-3 py-2.5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+    <div class="seg grid-cols-2"><button id="mResult" class="on px-3">Hasil</button><button id="mCompare" class="px-3">Before / After</button></div>
+    <div class="flex items-center gap-1.5">
+     <button id="undoBtn" disabled title="Urungkan" class="btn-soft disabled:opacity-40">↶</button>
+     <button id="redoBtn" disabled title="Ulangi" class="btn-soft disabled:opacity-40">↷</button>
+     <button id="resetBtn" class="btn-soft">Reset</button>
+    </div>
+   </div>
+   <div class="vf relative flex-1 min-h-[300px] sm:min-h-[440px] grid place-items-center p-3 sm:p-6 checker overflow-hidden select-none">
+    <canvas id="cv" class="max-w-full max-h-[50vh] lg:max-h-[64vh] rounded-xl shadow-lg cursor-crosshair" style="touch-action:none"></canvas>
+    <div id="hint" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-slate-900/80 text-white text-xs backdrop-blur pointer-events-none max-w-[92%] truncate">Klik "Hapus background AI" atau pilih alat</div>
+    <div id="busy" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-5 text-center z-20">
+     <div class="w-9 h-9 border-4 border-violet-400 border-t-transparent rounded-full animate-spin mb-3"></div>
+     <h3 id="busyTitle" class="text-white font-bold text-lg mb-1">Memproses…</h3>
+     <div class="w-full max-w-xs bg-slate-800 rounded-full h-2.5 overflow-hidden mt-3"><div id="bar" class="bg-gradient-to-r from-violet-500 to-rose-500 h-full transition-all duration-300" style="width:10%"></div></div>
+     <span id="busyText" class="text-xs font-semibold text-violet-300 mt-2">Memulai…</span>
+    </div>
+   </div>
+   <div class="px-4 py-2 border-t border-slate-200 dark:border-slate-800 flex justify-between text-xs text-slate-500 dark:text-slate-400"><span id="dims">Resolusi: -</span><span id="toolName" class="font-semibold text-violet-600 dark:text-violet-400">Alat: tidak ada</span></div>
+  </div>
+
+  <aside class="w-full lg:w-96 space-y-4 shrink-0 lg:sticky lg:top-20 lg:self-start">
+   <div class="card p-4 sm:p-5 space-y-4">
+    <div class="seg grid-cols-2"><button id="tab1" class="on">1. Hapus latar</button><button id="tab2">2. Ganti latar</button></div>
+    <div id="pane1" class="space-y-5">
+     <div class="p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-rose-50 dark:from-violet-950/60 dark:to-rose-950/30 border border-violet-100 dark:border-violet-800/60">
+      <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">Deteksi manusia, produk, atau objek otomatis. Unduhan model hanya sekali, lalu tersimpan di cache browser.</p>
+      <button id="aiBtn" class="btn-main">✨ Hapus background AI</button>
+     </div>
+     <div>
+      <h4 class="h4">Magic wand dan latar polos</h4>
+      <div class="grid grid-cols-2 gap-2 mb-3"><button id="tWand" class="tool btn-soft min-h-[42px]">🪄 Klik area latar</button><button id="cornerBtn" class="btn-soft min-h-[42px]">⚡ Latar polos</button></div>
+      <div class="flex justify-between text-xs mb-1"><span>Toleransi warna</span><b id="tolVal" class="text-violet-600 dark:text-violet-400">32</b></div>
+      <input id="tol" type="range" min="5" max="110" value="32" class="w-full">
+     </div>
+     <div>
+      <h4 class="h4">Kuas perapian</h4>
+      <div class="grid grid-cols-2 gap-2 mb-3"><button id="tErase" class="tool btn-soft min-h-[42px]">🧹 Hapus</button><button id="tRestore" class="tool btn-soft min-h-[42px]">🖌️ Pulihkan</button></div>
+      <div class="flex justify-between text-xs mb-1"><span>Ukuran kuas</span><b id="brVal" class="text-violet-600 dark:text-violet-400">30 px</b></div>
+      <input id="br" type="range" min="5" max="120" value="30" class="w-full">
+     </div>
+    </div>
+    <div id="pane2" class="hidden space-y-5">
+     <div><h4 class="h4">Transparan dan pas foto</h4>
+      <div class="grid grid-cols-3 gap-2">
+       <button data-t="transparent" class="bgp on flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold"><span class="w-8 h-8 rounded-lg checker border border-slate-300 dark:border-slate-600"></span>Transparan</button>
+       <button data-t="color" data-v="#DB1514" class="bgp flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold"><span class="w-8 h-8 rounded-lg" style="background:#DB1514"></span>Merah KTP</button>
+       <button data-t="color" data-v="#0055A5" class="bgp flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold"><span class="w-8 h-8 rounded-lg" style="background:#0055A5"></span>Biru ijazah</button>
+      </div></div>
+     <div><h4 class="h4">Warna solid</h4>
+      <div class="flex flex-wrap items-center gap-2">
+       <button data-t="color" data-v="#FFFFFF" class="bgp w-9 h-9 rounded-xl border border-slate-300 bg-white" title="Putih"></button>
+       <button data-t="color" data-v="#0F172A" class="bgp w-9 h-9 rounded-xl bg-slate-900" title="Hitam"></button>
+       <button data-t="color" data-v="#FACC15" class="bgp w-9 h-9 rounded-xl bg-yellow-400" title="Kuning"></button>
+       <button data-t="color" data-v="#10B981" class="bgp w-9 h-9 rounded-xl bg-emerald-500" title="Hijau"></button>
+       <button data-t="color" data-v="#EC4899" class="bgp w-9 h-9 rounded-xl bg-pink-500" title="Pink"></button>
+       <label class="w-9 h-9 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 grid place-items-center cursor-pointer relative overflow-hidden hover:border-violet-500" title="Warna bebas"><input type="color" id="picker" value="#7c3aed" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer"><span class="font-bold">+</span></label>
+      </div></div>
+     <div><h4 class="h4">Gradien</h4>
+      <div class="grid grid-cols-4 gap-2">
+       <button data-t="gradient" data-v="#7c3aed,#f43f5e" class="bgp h-10 rounded-xl" style="background:linear-gradient(135deg,#7c3aed,#f43f5e)"></button>
+       <button data-t="gradient" data-v="#0ea5e9,#10b981" class="bgp h-10 rounded-xl" style="background:linear-gradient(135deg,#0ea5e9,#10b981)"></button>
+       <button data-t="gradient" data-v="#f59e0b,#ef4444" class="bgp h-10 rounded-xl" style="background:linear-gradient(135deg,#f59e0b,#ef4444)"></button>
+       <button data-t="gradient" data-v="#f8fafc,#cbd5e1" class="bgp h-10 rounded-xl border border-slate-200" style="background:linear-gradient(135deg,#f8fafc,#cbd5e1)"></button>
+      </div></div>
+     <div><h4 class="h4">Foto latar sendiri</h4>
+      <label class="w-full py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-violet-500 text-xs font-semibold grid place-items-center cursor-pointer transition">Unggah gambar latar<input type="file" id="bgInput" accept="image/*" class="hidden"></label></div>
+    </div>
+   </div>
+   <div class="card p-4 sm:p-5 space-y-3">
+    <div class="flex items-center justify-between gap-2"><label for="fmt" class="h4 !mb-0">Format unduhan</label>
+     <select id="fmt" class="text-xs font-semibold bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5"><option value="image/png">PNG (transparan, HD)</option><option value="image/jpeg">JPG (ukuran kecil)</option></select></div>
+    <button id="dlBtn" class="btn-ok">⬇ Unduh gambar HD</button>
+   </div>
+  </aside>
+ </div>
+</section>
+</main>
+
+<!-- PROFIL -->
+<div id="profileModal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm overflow-y-auto p-4" role="dialog" aria-modal="true" aria-label="Profil">
+ <div class="card max-w-md mx-auto my-6 p-6 up bg-white dark:bg-slate-900">
+  <div class="flex items-start justify-between mb-4"><h2 class="text-xl font-extrabold">Profil saya</h2><button id="closeProfile" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Tutup">✕</button></div>
+  <div class="flex items-center gap-4 mb-5">
+   <span id="bigAvatar" class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-tr from-violet-600 to-rose-500 text-white text-2xl font-bold grid place-items-center shrink-0">U</span>
+   <div class="min-w-0"><p id="pEmailShow" class="text-sm font-semibold truncate"></p><p id="pJoined" class="text-xs text-slate-500 mb-2"></p>
+    <label class="btn-soft inline-block cursor-pointer">Ganti foto<input type="file" id="avatarInput" accept="image/*" class="hidden"></label>
+    <button id="avatarDel" class="btn-soft ml-1">Hapus</button></div>
+  </div>
+  <div class="grid grid-cols-2 gap-2 mb-5 text-center">
+   <div class="p-3 rounded-2xl bg-violet-50 dark:bg-violet-950/50"><b id="statCount" class="text-2xl font-display text-violet-600 dark:text-violet-300">0</b><p class="text-xs text-slate-500">Gambar diunduh</p></div>
+   <div class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40"><b class="text-2xl font-display text-emerald-600 dark:text-emerald-300">Aktif</b><p class="text-xs text-slate-500">Status akun</p></div>
+  </div>
+  <div id="profAlert" class="hidden mb-3 p-3 rounded-xl text-xs font-medium border" role="alert"></div>
+  <form id="nameForm" class="space-y-3 mb-5" novalidate>
+   <div><label class="lbl" for="pName">Nama tampilan</label><input class="inp" id="pName"></div>
+   <button class="btn-main" type="submit">Simpan nama</button>
+  </form>
+  <form id="passForm" class="space-y-3 pt-5 border-t border-slate-100 dark:border-slate-800" novalidate>
+   <h3 class="font-bold text-sm">Ganti kata sandi</h3>
+   <input class="inp" id="pOld" type="password" placeholder="Kata sandi saat ini" autocomplete="current-password">
+   <input class="inp" id="pNew" type="password" placeholder="Kata sandi baru (min. 6 karakter)" autocomplete="new-password">
+   <button class="btn bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 shadow-none" type="submit">Perbarui kata sandi</button>
+  </form>
+  <div class="grid grid-cols-2 gap-2 mt-5 pt-5 border-t border-slate-100 dark:border-slate-800">
+   <button id="logoutBtn" class="btn-soft !py-3 text-rose-600 dark:text-rose-300">Keluar</button>
+   <button id="delBtn" class="btn-soft !py-3">Hapus akun</button>
+  </div>
+ </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
+const esc=s=>String(s);
+function toast(msg,type='info'){
+ const c={info:'bg-slate-900',success:'bg-emerald-600',warning:'bg-amber-600',error:'bg-rose-600'}[type];
+ const t=document.createElement('div');t.className=`pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-sm font-medium text-white up ${c}`;t.textContent=msg;
+ $('toasts').appendChild(t);setTimeout(()=>{t.style.transition='opacity .25s';t.style.opacity='0';setTimeout(()=>t.remove(),260)},3600);
+}
+function alertBox(el,msg,err=true){el.textContent=msg;el.className=`mb-4 p-3 rounded-xl text-xs font-medium border ${err?'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800':'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800'}`}
+const hide=el=>el.classList.add('hidden');
+function seg(btns,on){btns.forEach(b=>b.classList.toggle('on',b===on))}
+
+addEventListener('error',e=>{try{toast('Terjadi kesalahan: '+(e.message||'tidak diketahui'),'error')}catch{}});
+/* ===== Tema ===== */
+$('themeBtn').onclick=()=>{const d=document.documentElement.classList.toggle('dark');store.set('hl_theme',d?'dark':'light');draw()};
+
+/* ===== Akun (tersimpan di localStorage; kata sandi di-hash) ===== */
+async function hashPw(p,salt){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{return btoa(unescape(encodeURIComponent(salt+':'+p)))}}
+let users=store.get('hl_users',[]),me=null;
+const saveUsers=()=>store.set('hl_users',users);
+const views={auth:$('authView'),upload:$('uploadView'),editor:$('editorView')};
+function go(n){for(const k in views)views[k].classList.toggle('hidden',k!==n)}
+const initials=n=>n.trim().split(/\s+/).map(p=>p[0]).slice(0,2).join('').toUpperCase()||'U';
+function setAvatar(el,u){el.replaceChildren();if(u.avatar){const i=document.createElement('img');i.src=u.avatar;i.alt='';i.className='w-full h-full object-cover';el.appendChild(i)}else el.textContent=initials(u.name)}
+function renderUser(){
+ setAvatar($('pillAvatar'),me);setAvatar($('bigAvatar'),me);
+ $('pillName').textContent=me.name;$('greet').textContent=`Halo, ${me.name}! Siap menghapus background?`;
+ $('pEmailShow').textContent=me.email;$('pName').value=me.name;$('statCount').textContent=me.count||0;
+ $('pJoined').textContent='Bergabung '+new Date(me.joined||Date.now()).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+}
+function enter(u){
+ me=u;store.set('hl_session',u.email);renderUser();
+ $('profileBtn').classList.remove('hidden');$('profileBtn').classList.add('inline-flex');
+ go(state.hasImage?'editor':'upload');
+ $('newBtn').classList.toggle('hidden',!state.hasImage);
+}
+function leave(){
+ me=null;store.del('hl_session');closeProfile();
+ $('profileBtn').classList.add('hidden');$('profileBtn').classList.remove('inline-flex');$('newBtn').classList.add('hidden');
+ state.hasImage=false;go('auth');
+}
+function authMode(m){
+ hide($('authAlert'));const l=m==='login';
+ $('loginForm').classList.toggle('hidden',!l);$('regForm').classList.toggle('hidden',l);
+ seg([$('tabLogin'),$('tabReg')],l?$('tabLogin'):$('tabReg'));
+}
+$('tabLogin').onclick=$('toLogin').onclick=()=>authMode('login');
+$('tabReg').onclick=$('toReg').onclick=()=>authMode('reg');
+$('demoBtn').onclick=()=>{$('lEmail').value='demo@hapuslatar.id';$('lPass').value='password123';hide($('authAlert'));toast('Akun demo terisi. Klik "Masuk ke studio".')};
+async function doLogin(){
+ const email=$('lEmail').value.trim().toLowerCase(),pw=$('lPass').value;
+ if(!email||!pw)return alertBox($('authAlert'),'Isi email dan kata sandi.');
+ const u=users.find(x=>x.email===email);
+ if(!u||u.hash!==await hashPw(pw,email))return alertBox($('authAlert'),'Email atau kata sandi salah. Periksa lagi atau daftar akun baru.');
+ enter(u);toast(`Selamat datang kembali, ${u.name}!`,'success');
+}
+$('loginSubmit').onclick=doLogin;$('loginForm').onsubmit=e=>{e.preventDefault();doLogin()};
+[$('lEmail'),$('lPass')].forEach(i=>i.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();doLogin()}});
+async function doRegister(){
+ const name=$('rName').value.trim(),email=$('rEmail').value.trim().toLowerCase(),pw=$('rPass').value;
+ if(!name||!email||!pw||!$('rPass2').value)return alertBox($('authAlert'),'Semua kolom wajib diisi.');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return alertBox($('authAlert'),'Format email tidak valid.');
+ if(pw.length<6)return alertBox($('authAlert'),'Kata sandi minimal 6 karakter.');
+ if(pw!==$('rPass2').value)return alertBox($('authAlert'),'Konfirmasi kata sandi tidak cocok.');
+ if(users.some(x=>x.email===email))return alertBox($('authAlert'),'Email ini sudah terdaftar. Silakan masuk.');
+ const u={name,email,hash:await hashPw(pw,email),avatar:null,joined:Date.now(),count:0};
+ users.push(u);saveUsers();$('regForm').reset();enter(u);toast(`Registrasi berhasil. Selamat datang, ${name}!`,'success');
+}
+$('regSubmit').onclick=doRegister;$('regForm').onsubmit=e=>{e.preventDefault();doRegister()};
+['rName','rEmail','rPass','rPass2'].forEach(id=>$(id).onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();doRegister()}});
+
+/* ===== Profil ===== */
+function openProfile(){hide($('profAlert'));$('passForm').reset();renderUser();$('profileModal').classList.remove('hidden');document.body.style.overflow='hidden';setTimeout(()=>$('pName').focus(),60)}
+function closeProfile(){$('profileModal').classList.add('hidden');document.body.style.overflow='';delBtnReset()}
+$('profileBtn').onclick=openProfile;$('closeProfile').onclick=closeProfile;
+$('profileModal').addEventListener('mousedown',e=>{if(e.target===$('profileModal'))closeProfile()});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeProfile()});
+$('nameForm').onsubmit=e=>{e.preventDefault();const n=$('pName').value.trim();if(!n)return alertBox($('profAlert'),'Nama tidak boleh kosong.');me.name=n;saveUsers();renderUser();alertBox($('profAlert'),'Nama berhasil disimpan.',false)};
+$('avatarInput').onchange=e=>{
+ const f=e.target.files[0];e.target.value='';if(!f||!f.type.startsWith('image/'))return;
+ const r=new FileReader();r.onload=ev=>{const im=new Image();im.onload=()=>{
+  const s=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=160;
+  c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,160,160);
+  me.avatar=c.toDataURL('image/jpeg',.85);saveUsers();renderUser();alertBox($('profAlert'),'Foto profil diperbarui.',false)};im.src=ev.target.result};r.readAsDataURL(f);
+};
+$('avatarDel').onclick=()=>{me.avatar=null;saveUsers();renderUser()};
+$('passForm').onsubmit=async e=>{
+ e.preventDefault();const o=$('pOld').value,n=$('pNew').value;
+ if(await hashPw(o,me.email)!==me.hash)return alertBox($('profAlert'),'Kata sandi saat ini salah.');
+ if(n.length<6)return alertBox($('profAlert'),'Kata sandi baru minimal 6 karakter.');
+ me.hash=await hashPw(n,me.email);saveUsers();$('passForm').reset();alertBox($('profAlert'),'Kata sandi berhasil diperbarui.',false);
+};
+$('logoutBtn').onclick=()=>{leave();toast('Anda telah keluar.')};
+let delArmed=false;
+function delBtnReset(){delArmed=false;$('delBtn').textContent='Hapus akun';$('delBtn').classList.remove('!bg-rose-600','!text-white')}
+$('delBtn').onclick=()=>{
+ if(!delArmed){delArmed=true;$('delBtn').textContent='Klik lagi untuk konfirmasi';$('delBtn').classList.add('!bg-rose-600','!text-white');return}
+ users=users.filter(u=>u.email!==me.email);saveUsers();leave();toast('Akun dihapus.','warning');
+};
+
+/* ===== State editor ===== */
+const state={hasImage:false,w:0,h:0,mode:'result',split:.5,dragSplit:false,tool:'none',tol:32,brush:30,drawing:false,last:null,ptr:null,bg:{type:'transparent',value:null,image:null},hist:[],hi:-1,ai:false};
+const orig=document.createElement('canvas'),oc=orig.getContext('2d',{willReadFrequently:true});
+const fg=document.createElement('canvas'),fc=fg.getContext('2d',{willReadFrequently:true});
+const cv=$('cv'),cx=cv.getContext('2d');
+
+function loadImg(img){
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,k=Math.min(1,2400/Math.max(iw,ih)),w=Math.round(iw*k),h=Math.round(ih*k);
+ Object.assign(state,{w,h,hasImage:true,mode:'result',split:.5,tool:'none'});
+ for(const c of[orig,fg,cv]){c.width=w;c.height=h}
+ oc.clearRect(0,0,w,h);oc.drawImage(img,0,0,w,h);fc.clearRect(0,0,w,h);fc.drawImage(img,0,0,w,h);
+ state.hist=[];state.hi=-1;pushHist();setTool('none');seg([$('mResult'),$('mCompare')],$('mResult'));
+ go('editor');$('newBtn').classList.remove('hidden');$('dims').textContent=`Resolusi: ${w} × ${h} px`+(k<1?' (diperkecil agar lancar)':'');draw();
+}
+function handleFile(file){
+ if(!me)return toast('Masuk akun terlebih dahulu.','warning');
+ if(!file||!file.type.startsWith('image/'))return toast('Pilih file gambar yang valid (JPG, PNG, WEBP).','error');
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onload=()=>{loadImg(img);URL.revokeObjectURL(url);toast('Gambar dimuat. Klik "Hapus background AI" untuk mulai.','success')};
+ img.onerror=()=>{URL.revokeObjectURL(url);toast('Gambar tidak dapat dibaca.','error')};
+ img.src=url;
+}
+$('pickBtn').onclick=e=>{e.stopPropagation();$('fileInput').click()};
+$('dropZone').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0]);e.target.value=''};
+const dz=$('dropZone');
+dz.ondragover=e=>{e.preventDefault();dz.classList.add('!border-violet-500')};
+dz.ondragleave=()=>dz.classList.remove('!border-violet-500');
+dz.ondrop=e=>{e.preventDefault();dz.classList.remove('!border-violet-500');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0])};
+addEventListener('paste',e=>{if(!me)return;for(const it of e.clipboardData?.items||[])if(it.type.startsWith('image/')){handleFile(it.getAsFile());break}});
+$('newBtn').onclick=()=>{state.hasImage=false;$('newBtn').classList.add('hidden');go('upload')};
+
+/* Contoh gambar (digambar di canvas, bebas CORS) */
+function sample(type){
+ const c=document.createElement('canvas');c.width=c.height=800;const g=c.getContext('2d');
+ if(type==='portrait'){
+  const bg=g.createLinearGradient(0,0,800,800);bg.addColorStop(0,'#dbeafe');bg.addColorStop(1,'#93c5fd');g.fillStyle=bg;g.fillRect(0,0,800,800);
+  g.fillStyle='#1e293b';g.beginPath();g.roundRect(190,500,420,320,[140,140,0,0]);g.fill();
+  g.fillStyle='#f8fafc';g.beginPath();g.moveTo(330,500);g.lineTo(400,650);g.lineTo(470,500);g.fill();
+  g.fillStyle='#7c3aed';g.beginPath();g.moveTo(385,520);g.lineTo(415,520);g.lineTo(422,630);g.lineTo(400,650);g.lineTo(378,630);g.fill();
+  g.fillStyle='#f1c27d';g.fillRect(355,420,90,95);
+  g.fillStyle='#ffdbac';g.beginPath();g.ellipse(400,310,105,130,0,0,7);g.fill();
+  g.fillStyle='#0f172a';g.beginPath();g.arc(400,275,112,Math.PI,0);g.quadraticCurveTo(485,240,400,235);g.quadraticCurveTo(315,240,298,340);g.fill();
+  g.strokeStyle='#1e293b';g.lineWidth=7;g.strokeRect(332,295,52,34);g.strokeRect(416,295,52,34);
+  g.beginPath();g.arc(400,365,32,.15*Math.PI,.85*Math.PI);g.stroke();
+ }else if(type==='product'){
+  g.fillStyle='#fde68a';g.fillRect(0,0,800,800);
+  const b=g.createLinearGradient(270,240,530,620);b.addColorStop(0,'#4f46e5');b.addColorStop(1,'#7c3aed');g.fillStyle=b;g.beginPath();g.roundRect(275,250,250,380,44);g.fill();
+  g.fillStyle='#0f172a';g.beginPath();g.roundRect(340,155,120,95,[20,20,4,4]);g.fill();
+  g.fillStyle='#fff';g.beginPath();g.roundRect(310,330,180,210,20);g.fill();
+  g.fillStyle='#1e293b';g.font='bold 28px Inter,sans-serif';g.textAlign='center';g.fillText('SERUM AI',400,425);
+ }else{
+  g.fillStyle='#ccfbf1';g.fillRect(0,0,800,800);
+  g.fillStyle='#ef4444';g.beginPath();g.moveTo(400,140);g.quadraticCurveTo(530,300,490,530);g.lineTo(310,530);g.quadraticCurveTo(270,300,400,140);g.fill();
+  g.fillStyle='#b91c1c';g.beginPath();g.moveTo(312,430);g.lineTo(220,560);g.lineTo(315,530);g.fill();g.beginPath();g.moveTo(488,430);g.lineTo(580,560);g.lineTo(485,530);g.fill();
+  g.fillStyle='#38bdf8';g.beginPath();g.arc(400,340,58,0,7);g.fill();g.lineWidth=14;g.strokeStyle='#f8fafc';g.stroke();
+ }
+ return c;
+}
+document.querySelectorAll('.sample').forEach(b=>b.onclick=()=>{loadImg(sample(b.dataset.sample));toast('Contoh dimuat. Coba hapus background-nya.')});
+
+/* ===== Riwayat ===== */
+function pushHist(){
+ state.hist=state.hist.slice(0,state.hi+1);state.hist.push(fc.getImageData(0,0,state.w,state.h));
+ if(state.hist.length>8)state.hist.shift();else state.hi++;
+ histUI();
+}
+function histUI(){$('undoBtn').disabled=state.hi<=0;$('redoBtn').disabled=state.hi>=state.hist.length-1}
+function jump(d){const n=state.hi+d;if(n<0||n>=state.hist.length)return;state.hi=n;fc.putImageData(state.hist[n],0,0);histUI();draw()}
+$('undoBtn').onclick=()=>jump(-1);$('redoBtn').onclick=()=>jump(1);
+$('resetBtn').onclick=()=>{fc.clearRect(0,0,state.w,state.h);fc.drawImage(orig,0,0);pushHist();draw();toast('Gambar dikembalikan ke aslinya.')};
+
+/* ===== Hapus background AI ===== */
+$('aiBtn').onclick=async()=>{
+ if(!state.hasImage||state.ai)return;state.ai=true;
+ const busy=$('busy');busy.classList.remove('hidden');$('busyTitle').textContent='Memuat mesin AI…';$('bar').style.width='12%';$('busyText').textContent='Menghubungkan…';
+ try{
+  const mod=await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
+  const remove=mod.removeBackground||mod.default;
+  const blob=await new Promise(r=>orig.toBlob(r,'image/png'));
+  const out=await remove(blob,{progress:(key,cur,tot)=>{
+   if(!tot)return;const p=Math.min(99,Math.max(10,Math.round(cur/tot*100)));$('bar').style.width=p+'%';
+   const dl=key.includes('fetch');$('busyTitle').textContent=dl?'Mengunduh model AI…':'AI menghapus background…';$('busyText').textContent=(dl?'Mengunduh: ':'Memproses: ')+p+'%';
+  }});
+  const url=URL.createObjectURL(out),img=new Image();
+  await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;img.src=url});
+  fc.clearRect(0,0,state.w,state.h);fc.drawImage(img,0,0,state.w,state.h);URL.revokeObjectURL(url);
+  pushHist();draw();toast('Selesai! Background berhasil dihapus.','success');
+ }catch(err){
+  console.error(err);toast('Model AI gagal dimuat (cek koneksi). Coba "Latar polos" atau "Klik area latar".','warning');
+ }finally{state.ai=false;busy.classList.add('hidden')}
+};
+
+/* ===== Magic wand ===== */
+function floodRemove(sx,sy,tol){
+ const w=state.w,h=state.h;sx|=0;sy|=0;if(sx<0||sx>=w||sy<0||sy>=h)return;
+ const o=oc.getImageData(0,0,w,h).data,img=fc.getImageData(0,0,w,h),d=img.data,s=(sy*w+sx)*4,R=o[s],G=o[s+1],B=o[s+2];
+ const seen=new Uint8Array(w*h),q=new Int32Array(w*h);let hd=0,tl=0;const p0=sy*w+sx;seen[p0]=1;q[tl++]=p0;
+ const max=(tol*2.55)**2*3,feather=max*1.45;
+ while(hd<tl){
+  const p=q[hd++],x=p%w,i=p*4,dr=o[i]-R,dg=o[i+1]-G,db=o[i+2]-B,ds=dr*dr+dg*dg+db*db;
+  if(ds<=max){
+   d[i+3]=0;
+   if(x>0&&!seen[p-1]){seen[p-1]=1;q[tl++]=p-1}
+   if(x<w-1&&!seen[p+1]){seen[p+1]=1;q[tl++]=p+1}
+   if(p>=w&&!seen[p-w]){seen[p-w]=1;q[tl++]=p-w}
+   if(p<w*h-w&&!seen[p+w]){seen[p+w]=1;q[tl++]=p+w}
+  }else if(ds<=feather){
+   const a=Math.round(d[i+3]*(ds-max)/(feather-max));if(a<d[i+3])d[i+3]=a;
+  }
+ }
+ fc.putImageData(img,0,0);
+}
+$('cornerBtn').onclick=()=>{
+ if(!state.hasImage)return;const p=4,{w,h}=state;
+ [[p,p],[w-1-p,p],[p,h-1-p],[w-1-p,h-1-p]].forEach(([x,y])=>floodRemove(x,y,state.tol));
+ pushHist();draw();toast('Latar dari keempat sudut dihapus.','success');
+};
+
+/* ===== Alat dan slider ===== */
+const toolInfo={wand:['Magic wand','Klik atau sentuh area latar yang ingin dihapus'],erase:['Kuas hapus','Usap bagian yang ingin dihapus'],restore:['Kuas pulihkan','Usap untuk mengembalikan bagian gambar'],none:['tidak ada','Pilih alat di panel atau gunakan Before / After']};
+const toolBtns={wand:$('tWand'),erase:$('tErase'),restore:$('tRestore')};
+function setTool(t){
+ state.tool=t;for(const k in toolBtns)toolBtns[k].classList.toggle('on',k===t);
+ $('toolName').textContent='Alat: '+toolInfo[t][0];$('hint').textContent=toolInfo[t][1];draw();
+}
+for(const k in toolBtns)toolBtns[k].onclick=()=>{if(state.mode==='compare'){state.mode='result';seg([$('mResult'),$('mCompare')],$('mResult'))}setTool(state.tool===k?'none':k)};
+$('tol').oninput=e=>{state.tol=+e.target.value;$('tolVal').textContent=state.tol};
+$('br').oninput=e=>{state.brush=+e.target.value;$('brVal').textContent=state.brush+' px';draw()};
+
+/* ===== Kuas ===== */
+const brushR=()=>state.brush*Math.max(state.w,state.h)/600/2;
+function stamp(x,y){
+ const r=brushR();fc.save();
+ if(state.tool==='erase'){
+  fc.globalCompositeOperation='destination-out';const g=fc.createRadialGradient(x,y,r*.4,x,y,r);g.addColorStop(0,'rgba(0,0,0,1)');g.addColorStop(1,'rgba(0,0,0,0)');fc.fillStyle=g;fc.beginPath();fc.arc(x,y,r,0,7);fc.fill();
+ }else{fc.beginPath();fc.arc(x,y,r,0,7);fc.clip();fc.drawImage(orig,0,0)}
+ fc.restore();
+}
+function stroke(a,b){ // isi celah antar titik agar goresan mulus
+ if(!a)return stamp(b.x,b.y);
+ const step=Math.max(1,brushR()/3),n=Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/step);
+ for(let i=1;i<=n;i++)stamp(a.x+(b.x-a.x)*i/n,a.y+(b.y-a.y)*i/n);
+}
+const coords=e=>{const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*cv.width,y:(e.clientY-r.top)/r.height*cv.height}};
+cv.addEventListener('pointerdown',e=>{
+ if(!state.hasImage)return;e.preventDefault();cv.setPointerCapture(e.pointerId);const p=coords(e);state.ptr=p;
+ if(state.mode==='compare'){state.dragSplit=true;state.split=Math.min(1,Math.max(0,p.x/cv.width));return draw()}
+ if(state.tool==='wand'){floodRemove(p.x,p.y,state.tol);pushHist();draw()}
+ else if(state.tool==='erase'||state.tool==='restore'){state.drawing=true;state.last=null;stroke(null,p);state.last=p;draw()}
+});
+cv.addEventListener('pointermove',e=>{
+ if(!state.hasImage)return;const p=coords(e);state.ptr=p;
+ if(state.dragSplit){state.split=Math.min(1,Math.max(0,p.x/cv.width));return draw()}
+ if(state.drawing){stroke(state.last,p);state.last=p}
+ if(state.tool==='erase'||state.tool==='restore')draw();
+});
+function up(){if(state.drawing){state.drawing=false;state.last=null;pushHist()}state.dragSplit=false}
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('pointerleave',()=>{if(!state.drawing){state.ptr=null;draw()}});
+
+/* ===== Mode tampilan dan tab ===== */
+$('mResult').onclick=()=>{state.mode='result';seg([$('mResult'),$('mCompare')],$('mResult'));draw()};
+$('mCompare').onclick=()=>{state.mode='compare';setTool('none');seg([$('mResult'),$('mCompare')],$('mCompare'))};
+$('tab1').onclick=()=>{$('pane1').classList.remove('hidden');$('pane2').classList.add('hidden');seg([$('tab1'),$('tab2')],$('tab1'))};
+$('tab2').onclick=()=>{$('pane2').classList.remove('hidden');$('pane1').classList.add('hidden');seg([$('tab1'),$('tab2')],$('tab2'))};
+
+/* ===== Latar ===== */
+const bgBtns=[...document.querySelectorAll('.bgp')];
+bgBtns.forEach(b=>b.onclick=()=>{bgBtns.forEach(x=>x.classList.toggle('on',x===b));state.bg.type=b.dataset.t;state.bg.value=b.dataset.v||null;draw()});
+$('picker').oninput=e=>{bgBtns.forEach(x=>x.classList.remove('on'));state.bg.type='color';state.bg.value=e.target.value;draw()};
+$('bgInput').onchange=e=>{
+ const f=e.target.files[0];e.target.value='';if(!f)return;const url=URL.createObjectURL(f),img=new Image();
+ img.onload=()=>{bgBtns.forEach(x=>x.classList.remove('on'));state.bg.type='image';state.bg.image=img;draw();toast('Foto latar diterapkan.','success')};
+ img.onerror=()=>toast('Gambar latar tidak dapat dibaca.','error');img.src=url;
+};
+function paintBg(g,w,h){
+ const{type,value,image}=state.bg;
+ if(type==='color'&&value){g.fillStyle=value;g.fillRect(0,0,w,h)}
+ else if(type==='gradient'&&value){const[c1,c2]=value.split(','),gr=g.createLinearGradient(0,0,w,h);gr.addColorStop(0,c1);gr.addColorStop(1,c2);g.fillStyle=gr;g.fillRect(0,0,w,h)}
+ else if(type==='image'&&image){const s=Math.max(w/image.width,h/image.height),nw=image.width*s,nh=image.height*s;g.drawImage(image,(w-nw)/2,(h-nh)/2,nw,nh)}
+}
+
+/* ===== Render ===== */
+function draw(){
+ if(!state.hasImage)return;cv.style.touchAction=(state.tool!=='none'||state.mode==='compare')?'none':'auto';const{w,h}=state;cx.clearRect(0,0,w,h);
+ if(state.bg.type!=='transparent')paintBg(cx,w,h);
+ cx.drawImage(fg,0,0);
+ if(state.mode==='compare'){
+  const sx=w*state.split;cx.save();cx.beginPath();cx.rect(0,0,sx,h);cx.clip();cx.drawImage(orig,0,0);cx.restore();
+  const lw=Math.max(3,w*.004);cx.fillStyle='#fff';cx.fillRect(sx-lw/2,0,lw,h);
+  cx.beginPath();cx.arc(sx,h/2,Math.max(18,w*.025),0,7);cx.fillStyle='#7c3aed';cx.fill();cx.lineWidth=lw;cx.strokeStyle='#fff';cx.stroke();
+ }
+ if(state.ptr&&(state.tool==='erase'||state.tool==='restore')){
+  cx.save();cx.beginPath();cx.arc(state.ptr.x,state.ptr.y,brushR(),0,7);cx.lineWidth=Math.max(2,w*.003);cx.strokeStyle=state.tool==='erase'?'#ef4444':'#10b981';cx.stroke();cx.restore();
+ }
+}
+
+/* ===== Unduh ===== */
+$('dlBtn').onclick=()=>{
+ if(!state.hasImage)return;const type=$('fmt').value,{w,h}=state,c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+ if(state.bg.type!=='transparent')paintBg(g,w,h);else if(type==='image/jpeg'){g.fillStyle='#fff';g.fillRect(0,0,w,h)}
+ g.drawImage(fg,0,0);const ext=type==='image/jpeg'?'jpg':'png';
+ c.toBlob(b=>{
+  if(!b)return toast('Gagal membuat file gambar.','error');
+  const url=URL.createObjectURL(b),a=document.createElement('a');a.href=url;a.download=`hapuslatar-${Date.now()}.${ext}`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  if(me){me.count=(me.count||0)+1;saveUsers();$('statCount').textContent=me.count}
+  toast(`Gambar .${ext.toUpperCase()} berhasil diunduh.`,'success');
+ },type,.95);
+};
+
+/* ===== Mulai ===== */
+(async()=>{
+ if(!users.some(u=>u.email==='demo@hapuslatar.id')){users.push({name:'Pengguna Demo',email:'demo@hapuslatar.id',hash:await hashPw('password123','demo@hapuslatar.id'),avatar:null,joined:Date.now(),count:0});saveUsers()}
+ const s=store.get('hl_session',null),u=users.find(x=>x.email===s);if(u)enter(u);
+})();
+</script>
+</body>
+</html>
